@@ -7,7 +7,7 @@ from database.users_chats_db import db
 
 @Client.on_message(filters.private & filters.text & filters.incoming)
 async def pm_search(client, message):
-    """Handles private chat searches and displays results as inline buttons."""
+    """Handles private search queries and displays movie results as buttons."""
 
     await mdb.update_top_messages(message.from_user.id, message.text)
     bot_id = client.me.id
@@ -25,11 +25,11 @@ async def pm_search(client, message):
         
         # Show a maximum of 10 results as buttons
         buttons = []
-        for file in files[:10]:  # Limit to 10 results
+        for file in files[:10]:  # Only 10 results
             buttons.append([
                 InlineKeyboardButton(
                     text=f"🎬 {file.file_name[:40]}...",
-                    callback_data=f"movie#{file.file_id}"
+                    callback_data=f"get_movie#{file.file_id}"
                 )
             ])
 
@@ -46,9 +46,9 @@ async def pm_search(client, message):
             ])
         )
 
-@Client.on_callback_query(filters.regex(r"^movie#"))
+@Client.on_callback_query(filters.regex(r"^get_movie#"))
 async def send_movie_file(client, query: CallbackQuery):
-    """Handles button clicks to send selected movie file."""
+    """Handles button clicks to send the selected movie file."""
 
     _, file_id = query.data.split("#")
     files_ = await get_file_details(file_id)
