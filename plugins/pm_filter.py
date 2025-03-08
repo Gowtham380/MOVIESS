@@ -1,5 +1,4 @@
 import asyncio
-import re
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from database.ia_filterdb import get_search_results, get_file_details
@@ -12,7 +11,6 @@ async def pm_search(client, message):
 
     await mdb.update_top_messages(message.from_user.id, message.text)
     bot_id = client.me.id
-    user_id = message.from_user.id    
 
     if str(message.text).startswith('/'):
         return
@@ -25,9 +23,9 @@ async def pm_search(client, message):
             await message.reply_text("<b>No results found! ❌</b>")
             return
         
-        # Generate buttons for movies found
+        # Show a maximum of 10 results as buttons
         buttons = []
-        for file in files:
+        for file in files[:10]:  # Limit to 10 results
             buttons.append([
                 InlineKeyboardButton(
                     text=f"🎬 {file.file_name[:40]}...",
@@ -37,7 +35,7 @@ async def pm_search(client, message):
 
         # Send buttons instead of a text file
         await message.reply_text(
-            f"<b>Found {total} results for:</b> <code>{message.text}</code>\n\n<b>Select a movie:</b>",
+            f"<b>Found {min(10, total)} results for:</b> <code>{message.text}</code>\n\n<b>Select a movie:</b>",
             reply_markup=InlineKeyboardMarkup(buttons)
         )
     else:
